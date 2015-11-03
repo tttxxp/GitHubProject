@@ -2,8 +2,11 @@ package com.app.videos;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Point;
+import android.net.Uri;
 import android.os.Build;
+import android.provider.MediaStore;
 import android.support.v7.widget.RecyclerView;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -12,6 +15,7 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import java.util.List;
 
@@ -32,8 +36,7 @@ class RecyclerAdapter extends RecyclerView.Adapter  {
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-        final View view = LayoutInflater.from(viewGroup.getContext())
-                .inflate(R.layout.recycler_item, viewGroup, false);
+        final View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.recycler_item, viewGroup, false);
         view.getLayoutParams().width = screenWidth;
 
         if (actualDimensions == null) {
@@ -57,6 +60,17 @@ class RecyclerAdapter extends RecyclerView.Adapter  {
         MediaStoreData current = data.get(position);
 
         final ListViewHolder vh = (ListViewHolder) viewHolder;
+        vh.title.setText(current.toString());
+
+        ImageView image = vh.image;
+        Uri uri = MediaStore.Video.Thumbnails.EXTERNAL_CONTENT_URI;
+        String[] projection = {MediaStore.Video.Thumbnails.VIDEO_ID, MediaStore.Video.Thumbnails.DATA};
+        String selection = projection[0] + "=?";
+        String[] args = {current.rowId + ""};
+        Cursor c = image.getContext().getContentResolver().query(uri, projection, selection, args, null);
+        if (c != null && c.moveToFirst()) {
+            image.setImageURI(Uri.parse(c.getString(1)));
+        }
     }
 
     @Override
@@ -95,10 +109,12 @@ class RecyclerAdapter extends RecyclerView.Adapter  {
     public static final class ListViewHolder extends RecyclerView.ViewHolder {
 
         private final ImageView image;
+        private final TextView title;
 
         public ListViewHolder(View itemView) {
             super(itemView);
             image = (ImageView) itemView.findViewById(R.id.image);
+            title = (TextView) itemView.findViewById(R.id.title);
         }
     }
 }

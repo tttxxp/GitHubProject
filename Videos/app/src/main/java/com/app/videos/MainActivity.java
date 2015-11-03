@@ -4,7 +4,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 
 /**
- * Displays a {@link HorizontalGalleryFragment}.
+ * Displays a {@link GalleryFragment}.
  */
 public class MainActivity extends FragmentActivity {
 

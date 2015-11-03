@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * Displays media store data in a recycler view.
  */
-public class HorizontalGalleryFragment extends Fragment
+public class GalleryFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<List<MediaStoreData>> {
 
     private RecyclerView recyclerView;
@@ -23,6 +23,7 @@ public class HorizontalGalleryFragment extends Fragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getLoaderManager().initLoader(0x11, null, this);
     }
 
     @Override
@@ -30,7 +31,7 @@ public class HorizontalGalleryFragment extends Fragment
         View result = inflater.inflate(R.layout.recycler_view, container, false);
         recyclerView = (RecyclerView) result.findViewById(R.id.recycler_view);
         GridLayoutManager layoutManager = new GridLayoutManager(getActivity(), 1);
-        layoutManager.setOrientation(RecyclerView.HORIZONTAL);
+        layoutManager.setOrientation(RecyclerView.VERTICAL);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
 
@@ -44,8 +45,9 @@ public class HorizontalGalleryFragment extends Fragment
 
     @Override
     public void onLoadFinished(Loader<List<MediaStoreData>> loader, List<MediaStoreData> mediaStoreData) {
-//        recyclerView.addOnScrollListener(preloader);
-//        recyclerView.setAdapter(adapter);
+        System.out.println("setAdapter");
+        RecyclerAdapter adapter = new RecyclerAdapter(getContext(), mediaStoreData);
+        recyclerView.setAdapter(adapter);
     }
 
     @Override
