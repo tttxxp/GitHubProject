@@ -2,6 +2,7 @@ package com.app.videos;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Point;
 import android.net.Uri;
@@ -56,8 +57,8 @@ class RecyclerAdapter extends RecyclerView.Adapter  {
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
-        MediaStoreData current = data.get(position);
+    public void onBindViewHolder(final RecyclerView.ViewHolder viewHolder, int position) {
+        final MediaStoreData current = data.get(position);
 
         final ListViewHolder vh = (ListViewHolder) viewHolder;
         vh.title.setText(current.toString());
@@ -71,6 +72,17 @@ class RecyclerAdapter extends RecyclerView.Adapter  {
         if (c != null && c.moveToFirst()) {
             image.setImageURI(Uri.parse(c.getString(1)));
         }
+
+        final String path = current.uri.toString();
+        vh.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Context context = v.getContext();
+                Intent intent = new Intent(context, VideoPlayerActivity.class);
+                intent.putExtra("uri", path);
+                context.startActivity(intent);
+            }
+        });
     }
 
     @Override
