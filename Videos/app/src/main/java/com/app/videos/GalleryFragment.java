@@ -10,6 +10,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestManager;
+
 import java.util.List;
 
 /**
@@ -30,7 +33,7 @@ public class GalleryFragment extends Fragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View result = inflater.inflate(R.layout.recycler_view, container, false);
         recyclerView = (RecyclerView) result.findViewById(R.id.recycler_view);
-        GridLayoutManager layoutManager = new GridLayoutManager(getActivity(), 1);
+        GridLayoutManager layoutManager = new GridLayoutManager(getActivity(), 3);
         layoutManager.setOrientation(RecyclerView.VERTICAL);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
@@ -45,8 +48,8 @@ public class GalleryFragment extends Fragment
 
     @Override
     public void onLoadFinished(Loader<List<MediaStoreData>> loader, List<MediaStoreData> mediaStoreData) {
-        System.out.println("setAdapter");
-        RecyclerAdapter adapter = new RecyclerAdapter(getContext(), mediaStoreData);
+        RequestManager requestManager = Glide.with(this);
+        RecyclerAdapter adapter = new RecyclerAdapter(getActivity(), mediaStoreData, requestManager);
         recyclerView.setAdapter(adapter);
     }
 

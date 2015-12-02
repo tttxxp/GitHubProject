@@ -84,7 +84,8 @@ public class MediaStoreDataLoader extends AsyncTaskLoader<List<MediaStoreData>> 
     }
 
     private List<MediaStoreData> queryVideos() {
-        return query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, VIDEO_PROJECTION,
+        Uri externalUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+        return query(externalUri, VIDEO_PROJECTION,
                 MediaStore.Video.VideoColumns.DATE_TAKEN, MediaStore.Video.VideoColumns._ID,
                 MediaStore.Video.VideoColumns.DATE_TAKEN, MediaStore.Video.VideoColumns.DATE_MODIFIED,
                 MediaStore.Video.VideoColumns.MIME_TYPE, MediaStore.Images.ImageColumns.ORIENTATION,

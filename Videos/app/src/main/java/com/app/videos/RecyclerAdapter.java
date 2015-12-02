@@ -3,11 +3,8 @@ package com.app.videos;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Point;
-import android.net.Uri;
 import android.os.Build;
-import android.provider.MediaStore;
 import android.support.v7.widget.RecyclerView;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -18,27 +15,34 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.RequestManager;
+
 import java.util.List;
 
-class RecyclerAdapter extends RecyclerView.Adapter  {
+class RecyclerAdapter extends RecyclerView.Adapter {
 
     private final List<MediaStoreData> data;
     private final int screenWidth;
+    private final int screenHeight;
+
+    private RequestManager requestManager;
 
     private int[] actualDimensions;
 
-    RecyclerAdapter(Context context, List<MediaStoreData> data) {
+    RecyclerAdapter(Context context, List<MediaStoreData> data, RequestManager manager) {
         this.data = data;
+        requestManager = manager;
 
         setHasStableIds(true);
 
         screenWidth = getWidth(context);
+        screenHeight = getHeight(context);
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         final View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.recycler_item, viewGroup, false);
-        view.getLayoutParams().width = screenWidth;
+        view.getLayoutParams().height = screenHeight / 2;
 
         if (actualDimensions == null) {
             view.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
@@ -63,18 +67,10 @@ class RecyclerAdapter extends RecyclerView.Adapter  {
         final ListViewHolder vh = (ListViewHolder) viewHolder;
         vh.title.setText(current.toString());
 
-        ImageView image = vh.image;
-        Uri uri = MediaStore.Video.Thumbnails.EXTERNAL_CONTENT_URI;
-        String[] projection = {MediaStore.Video.Thumbnails.VIDEO_ID, MediaStore.Video.Thumbnails.DATA};
-        String selection = projection[0] + "=?";
-        String[] args = {current.rowId + ""};
-        Cursor c = image.getContext().getContentResolver().query(uri, projection, selection, args, null);
-        if (c != null && c.moveToFirst()) {
-            image.setImageURI(Uri.parse(c.getString(1)));
-        }
+        requestManager.loadFromMediaStore(current.uri).into(vh.image);
 
         final String path = current.uri.toString();
-        vh.itemView.setOnClickListener(new View.OnClickListener() {
+        vh.image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Context context = v.getContext();
@@ -114,6 +110,24 @@ class RecyclerAdapter extends RecyclerView.Adapter  {
             result = size.x;
         } else {
             result = display.getWidth();
+        }
+        return result;
+    }
+
+    // Display#getSize(Point)
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+    @SuppressWarnings("deprecation")
+    private static int getHeight(Context context) {
+        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        Display display = wm.getDefaultDisplay();
+
+        final int result;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+            Point size = new Point();
+            display.getSize(size);
+            result = size.y;
+        } else {
+            result = display.getHeight();
         }
         return result;
     }
